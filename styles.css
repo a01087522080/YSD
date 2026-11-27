@@ -1191,9 +1191,12 @@ html[data-theme="dark"] .toast {
 
 @media (max-width: 420px) {
   .conn #connLabel {
-    max-width: 9.5ch;
+    max-width: 60px;
     overflow: hidden;
     text-overflow: ellipsis;
+  }
+  .conn {
+    font-size: 11.5px;
   }
   .brand-text p {
     max-width: 30vw;

@@ -153,7 +153,14 @@ function renderConnection() {
   const label = $('connLabel');
   const live = state.store && state.store.mode === 'cloud';
   badge.dataset.state = live ? 'live' : 'local';
-  label.textContent = live ? '연결됨' : '로컬 미리보기 모드';
+
+  const narrow = window.matchMedia && window.matchMedia('(max-width: 480px)').matches;
+  if (live) {
+    label.textContent = narrow ? '실시간' : '연결됨';
+  } else {
+    label.textContent = narrow ? '로컬 모드' : '로컬 미리보기 모드';
+  }
+  label.title = live ? '실시간 연결됨' : '로컬 미리보기 모드';
 
   const banner = $('modeBanner');
   if (live) {
@@ -780,6 +787,18 @@ async function main() {
 
   attachStore(store);
   renderProfile();
+
+  if (window.matchMedia) {
+    const narrowQuery = window.matchMedia('(max-width: 480px)');
+    const onNarrowChange = function () {
+      renderConnection();
+    };
+    if (typeof narrowQuery.addEventListener === 'function') {
+      narrowQuery.addEventListener('change', onNarrowChange);
+    } else if (typeof narrowQuery.addListener === 'function') {
+      narrowQuery.addListener(onNarrowChange);
+    }
+  }
 
   if (store.mode === 'local' && store.reason === 'firebase-error') {
     toast('실시간 DB에 연결하지 못해 로컬 미리보기로 시작했어요');
