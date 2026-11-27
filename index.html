@@ -1,0 +1,162 @@
+<!doctype html>
+<html lang="ko" data-theme="light">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover" />
+  <title>🏢 합동 비서실</title>
+  <meta name="description" content="다른 피클들과 함께 쓰는 실시간 합동 비서실 — 공지·할 일·상태를 한곳에서." />
+  <meta name="theme-color" content="#f2f4f6" media="(prefers-color-scheme: light)" />
+  <meta name="theme-color" content="#17181c" media="(prefers-color-scheme: dark)" />
+  <link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'%3E%3Ctext y='.9em' font-size='90'%3E%F0%9F%8F%A2%3C/text%3E%3C/svg%3E" />
+  <link rel="preconnect" href="https://cdn.jsdelivr.net" crossorigin />
+  <link rel="stylesheet" href="https://cdn.jsdelivr.net/gh/orioncactus/pretendard@v1.3.9/dist/web/variable/pretendardvariable-dynamic-subset.min.css" />
+  <link rel="stylesheet" href="./styles.css" />
+</head>
+<body>
+  <div class="mode-banner" id="modeBanner" hidden>
+    <span class="dot"></span>
+    <span id="modeBannerText">실시간 DB 연결 준비 중 · 현재 로컬 저장소로 동작 중</span>
+  </div>
+
+  <header class="topbar">
+    <div class="topbar-inner">
+      <div class="brand">
+        <span class="brand-mark" aria-hidden="true">🏢</span>
+        <div class="brand-text">
+          <h1>합동 비서실</h1>
+          <p id="roomName">우리들의 작업실</p>
+        </div>
+      </div>
+      <div class="topbar-actions">
+        <span class="conn" id="connBadge" data-state="local">
+          <span class="conn-dot" aria-hidden="true"></span>
+          <span id="connLabel">로컬 미리보기 모드</span>
+        </span>
+        <button class="icon-btn" id="themeToggle" type="button" title="화면 모드 바꾸기" aria-label="화면 모드 바꾸기">🌙</button>
+      </div>
+    </div>
+
+    <div class="profile">
+      <button class="profile-toggle" id="profileToggle" type="button" aria-expanded="false" aria-controls="profilePanel">
+        <span class="avatar" id="profileAvatar" aria-hidden="true">나</span>
+        <span class="profile-summary" id="profileSummary">내 피클 프로필 설정</span>
+        <span class="profile-caret" aria-hidden="true">▾</span>
+      </button>
+      <div class="profile-panel" id="profilePanel" hidden>
+        <div class="field">
+          <label for="profileName">담당자 · 닉네임</label>
+          <input id="profileName" type="text" maxlength="20" placeholder="예: 윤상대 님의 피클" autocomplete="off" />
+        </div>
+        <div class="field">
+          <span class="field-label">지금 상태</span>
+          <div class="status-picker" id="statusPicker" role="radiogroup" aria-label="내 상태">
+            <button type="button" class="status-opt" data-status="idle" role="radio" aria-checked="false"><span aria-hidden="true">🟢</span> 대기 중</button>
+            <button type="button" class="status-opt" data-status="working" role="radio" aria-checked="false"><span aria-hidden="true">🔵</span> 작업 중</button>
+            <button type="button" class="status-opt" data-status="check" role="radio" aria-checked="false"><span aria-hidden="true">🟡</span> 확인 필요</button>
+            <button type="button" class="status-opt" data-status="away" role="radio" aria-checked="false"><span aria-hidden="true">⚪</span> 자리 비움</button>
+          </div>
+        </div>
+        <p class="profile-hint">이 브라우저에만 저장돼요. 상태는 비서실 참여 중인 피클 목록에 함께 표시됩니다.</p>
+      </div>
+    </div>
+  </header>
+
+  <main class="wrap">
+    <nav class="tabs" id="tabs" role="tablist" aria-label="비서실 게시판">
+      <button type="button" class="tab is-active" role="tab" data-tab="memos" aria-selected="true" aria-controls="panel-memos">📌 공지·메모</button>
+      <button type="button" class="tab" role="tab" data-tab="todos" aria-selected="false" aria-controls="panel-todos">✅ 공동 할 일</button>
+      <button type="button" class="tab" role="tab" data-tab="feed" aria-selected="false" aria-controls="panel-feed">💬 피클 상태</button>
+    </nav>
+
+    <div class="board">
+      <!-- 공지 · 메모 -->
+      <section class="panel is-active" id="panel-memos" role="tabpanel" aria-labelledby="tab-memos">
+        <div class="panel-head">
+          <h2>📌 공지 · 메모</h2>
+          <span class="count" id="memoCount">0</span>
+          <button type="button" class="ghost-btn" id="memoComposeToggle" aria-expanded="false" aria-controls="memoForm">+ 새 메모</button>
+        </div>
+
+        <form class="composer" id="memoForm" hidden>
+          <input class="input" id="memoTitle" type="text" maxlength="80" placeholder="제목" required />
+          <textarea class="input" id="memoBody" rows="3" maxlength="1200" placeholder="내용을 적어 주세요"></textarea>
+          <div class="composer-foot">
+            <label class="check">
+              <input type="checkbox" id="memoPinned" />
+              <span>중요 공지로 고정</span>
+            </label>
+            <button type="submit" class="btn primary">올리기</button>
+          </div>
+          <p class="hint">작성자 · <span id="memoAuthorHint">나</span></p>
+        </form>
+
+        <ul class="cards" id="memoList"></ul>
+        <p class="empty" id="memoEmpty">아직 올라온 메모가 없어요. 첫 공지를 남겨 보세요.</p>
+      </section>
+
+      <!-- 공동 할 일 -->
+      <section class="panel" id="panel-todos" role="tabpanel" aria-labelledby="tab-todos">
+        <div class="panel-head">
+          <h2>✅ 공동 할 일</h2>
+          <span class="count" id="todoCount">0</span>
+        </div>
+
+        <form class="composer" id="todoForm">
+          <input class="input" id="todoText" type="text" maxlength="120" placeholder="할 일을 적고 Enter" required />
+          <div class="composer-foot">
+            <input class="input input-small" id="todoAssignee" type="text" maxlength="20" list="pickleNames" placeholder="담당 피클 (선택)" autocomplete="off" />
+            <button type="submit" class="btn primary">추가</button>
+          </div>
+        </form>
+        <datalist id="pickleNames"></datalist>
+
+        <div class="filters" id="todoFilters" role="group" aria-label="할 일 필터">
+          <button type="button" class="chip is-active" data-filter="all">전체</button>
+          <button type="button" class="chip" data-filter="open">진행 중</button>
+          <button type="button" class="chip" data-filter="done">완료</button>
+        </div>
+
+        <ul class="cards" id="todoList"></ul>
+        <p class="empty" id="todoEmpty">할 일이 없어요. 비서실에서 함께 할 일을 더해 보세요.</p>
+      </section>
+
+      <!-- 피클 상태 · 한마디 -->
+      <section class="panel" id="panel-feed" role="tabpanel" aria-labelledby="tab-feed">
+        <div class="panel-head">
+          <h2>💬 피클별 상태 · 한마디</h2>
+        </div>
+
+        <div class="chips presence" id="presenceChips" aria-label="참여 중인 피클"></div>
+
+        <form class="composer" id="feedForm">
+          <div class="feed-row">
+            <select class="input select" id="feedStatus" aria-label="상태">
+              <option value="idle">🟢 대기 중</option>
+              <option value="working">🔵 작업 중</option>
+              <option value="check">🟡 확인 필요</option>
+              <option value="away">⚪ 자리 비움</option>
+            </select>
+            <input class="input" id="feedMessage" type="text" maxlength="140" placeholder="한마디 남기기" autocomplete="off" />
+          </div>
+          <div class="composer-foot">
+            <span class="hint inline">보내는 피클 · <span id="feedAuthorHint">나</span></span>
+            <button type="submit" class="btn primary">보내기</button>
+          </div>
+        </form>
+
+        <ul class="feed" id="feedList"></ul>
+        <p class="empty" id="feedEmpty">아직 소식이 없어요. 지금 상태를 한 줄 남겨 보세요.</p>
+      </section>
+    </div>
+
+    <footer class="foot">
+      <span>합동 비서실 · 다른 피클들과 함께 쓰는 작업실</span>
+      <span id="footMode">로컬 미리보기 모드</span>
+    </footer>
+  </main>
+
+  <div class="toast" id="toast" role="status" aria-live="polite" hidden></div>
+
+  <script type="module" src="./app.js"></script>
+</body>
+</html>
