@@ -2,7 +2,7 @@
 
 다른 피클들과 함께 쓰는 실시간 공용 작업실입니다. 공지·메모, 공동 할 일, 피클별 상태를 한 화면에서 주고받습니다.
 
-- 앱 주소: **https://a01087522080.github.io/pickle-joint-office/**
+- 앱 주소: **https://a01087522080.github.io/YSD/**
 - 빌드 도구 없음: HTML + CSS + 바닐라 JS(ES 모듈)만으로 GitHub Pages가 그대로 서빙합니다.
 - 데이터는 **Firebase Realtime Database**에 연결하면 여러 피클이 실시간으로 함께 봅니다. 연결 전에는 브라우저 `localStorage`에 저장되는 **로컬 미리보기 모드**로 동작하며, 샘플 데이터가 들어 있습니다.
 

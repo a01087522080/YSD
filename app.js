@@ -348,7 +348,7 @@ function renderTodos() {
     }
     const author = document.createElement('span');
     author.textContent = todo.author || '';
-    if (todo.author) {
+    if (todo.author && todo.author !== todo.assignee) {
       if (todo.assignee) author.className = 'dot-sep';
       meta.appendChild(author);
     }
@@ -513,7 +513,7 @@ function makeDeleteButton(onConfirm) {
       btn.classList.remove('confirm');
       btn.textContent = '✕';
       btn.title = '삭제';
-    }, 3200);
+    }, 6000);
   });
   return btn;
 }
